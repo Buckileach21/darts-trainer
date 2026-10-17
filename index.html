@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Darts Trainer</title>
+<style>
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+body{margin:0;padding:12px;background:#0f172a;color:#f8fafc;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+.app{width:100%;max-width:680px}
+header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;background:#1e293b;padding:12px;border-radius:12px;border:1px solid #334155}
+.title{font-size:1.1rem;font-weight:700}
+.stats{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.badge{background:#0f172a;padding:6px 8px;border-radius:8px;font-size:.8rem;font-weight:600;border:1px solid #334155}
+.tbox{display:flex;align-items:center;gap:5px;background:#0f172a;padding:4px 8px;border-radius:8px;border:1px solid #334155}
+.tdisp{font-variant-numeric:tabular-nums;font-weight:700;min-width:44px;text-align:center;color:#38bdf8}
+.tpaused{color:#f59e0b!important}
+.bsm{background:#334155;color:#f8fafc;border:none;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600}
+.bpact{background:#f59e0b;color:#000}
+.tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.tbtn{background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:10px 6px;border-radius:10px;font-weight:600;font-size:.82rem;cursor:pointer;text-align:center}
+.tbtn.active{background:#10b981;color:#052e16;border-color:#10b981;font-weight:700}
+.fbar{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+.fchip{background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:6px 10px;border-radius:99px;font-size:.78rem;cursor:pointer;white-space:nowrap}
+.fchip.active{background:#38bdf8;color:#0f172a;border-color:#38bdf8;font-weight:700}
+.card{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:18px;margin-bottom:14px}
+.hero{font-size:2.8rem;font-weight:800;text-align:center;margin:8px 0}
+.sub{text-align:center;color:#94a3b8;font-size:.9rem;margin-bottom:16px}
+.ogrid{display:grid;grid-template-columns:1fr;gap:10px}
+.obtn{background:#0f172a;color:#f8fafc;border:2px solid #334155;padding:14px 10px;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;text-align:center}
+.obtn.correct{background:rgba(16,185,129,.25);border-color:#10b981;color:#34d399}
+.obtn.wrong{background:rgba(239,68,68,.25);border-color:#ef4444;color:#f87171}
+.fbox{margin-top:14px;padding:12px;border-radius:10px;background:#0f172a;border-left:4px solid #10b981;font-size:.9rem;line-height:1.4;display:none}
+.nbtn{width:100%;margin-top:12px;padding:14px;background:#10b981;color:#052e16;border:none;border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;display:none}
+.lrow{display:flex;gap:10px;align-items:center;margin-bottom:14px}
+.lnum{width:85px;background:#0f172a;color:#fff;border:2px solid #38bdf8;border-radius:10px;padding:8px;font-size:1.3rem;font-weight:800;text-align:center}
+.lsl{flex:1;height:8px}
+.ipanel{background:#0f172a;padding:12px;border-radius:10px;border:1px solid #334155;margin-bottom:10px}
+.ilbl{font-size:.75rem;text-transform:uppercase;color:#94a3b8}
+.ival{font-size:1.25rem;font-weight:800;margin-top:4px;color:#38bdf8}
+.ival.alt{color:#f59e0b}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="title">🎯 Darts Trainer</div>
+    <div class="stats">
+      <div class="badge">🔥 <span id="stV">0</span></div>
+      <div class="badge">✅ <span id="scV">0/0</span></div>
+      <div class="tbox">
+        <span id="tDisp" class="tdisp">0.0s</span>
+        <button id="pBtn" class="bsm" onclick="togP()">⏸️ Pause</button>
+        <button class="bsm" onclick="resT()">🔄</button>
+        <button id="tBtn" class="bsm" onclick="togTM()">⏱️ Ein</button>
+      </div>
+    </div>
+  </header>
+  <div class="tabs">
+    <button class="tbtn active" onclick="setM(1)">1. Checkout-Quiz</button>
+    <button class="tbtn" onclick="setM(2)">2. Single-Rettung</button>
+    <button class="tbtn" onclick="setM(3)">3. Rest-Sprint</button>
+    <button class="tbtn" onclick="setM(4)">4. Rechner 40-170</button>
+  </div>
+  <div id="fBar" class="fbar">
+    <button class="fchip active" onclick="setF('all',this)">Alle 40-170</button>
+    <button class="fchip" onclick="setF('61-100',this)">61-100 (2-Dart)</button>
+    <button class="fchip" onclick="setF('101-130',this)">101-130 (Bull)</button>
+    <button class="fchip" onclick="setF('131-170',this)">131-170 (High)</button>
+    <button class="fchip" onclick="setF('40-60',this)">40-60 (Single)</button>
+  </div>
+  <div id="qView" class="card">
+    <div id="qTag" style="text-align:center;font-size:.78rem;color:#38bdf8;font-weight:700">STANDARD CHECKOUT</div>
+    <div id="hScore" class="hero">89 Rest</div>
+    <div id="sPrompt" class="sub">Welcher Standard-Weg ist optimal?</div>
+    <div id="oCont" class="ogrid"></div>
+    <div id="fBox" class="fbox"></div>
+    <button id="nBtn" class="nbtn" onclick="nextQ()">Nächste Aufgabe ➡️</button>
+  </div>
+  <div id="lView" class="card" style="display:none">
+    <div class="lrow">
+      <input type="number" id="lNum" class="lnum" min="40" max="170" value="104" oninput="updL(this.value)">
+      <input type="range" id="lSl" class="lsl" min="40" max="170" value="104" oninput="updL(this.value)">
+    </div>
+    <div class="ipanel">
+      <div class="ilbl">Standard-Weg (1. Dart Triple/Bull)</div>
+      <div id="lkStd" class="ival"></div>
+    </div>
+    <div class="ipanel">
+      <div class="ilbl">1. Dart nur Single (Umbau-Weg)</div>
+      <div id="lkAlt" class="ival alt"></div>
+    </div>
+    <div class="ipanel">
+      <div class="ilbl">Board-Strategie</div>
+      <div id="lkTip" style="margin-top:6px;font-size:.92rem"></div>
+    </div>
+  </div>
+</div>
+<script>
+const DB={170:{s:"T20 – T20 – Bull",a:"150 Rest: T20 – T20 (stellt 30)",t:"Big Fish! Bei S20 kein Check möglich."},169:{s:"Bogey (T20–T19–T16 stellt 4)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},168:{s:"Bogey (T20–T20–T16 stellt 10)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},167:{s:"T20 – T19 – Bull",a:"147 Rest: T19 – T20 (stellt 30)",t:"Zweithöchstes Finish."},166:{s:"Bogey (T20–T18–T18 stellt 8)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},165:{s:"Bogey (T20–T19–T18 stellt 4)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},164:{s:"T20 – T18 – Bull (o. T19–T19–Bull)",a:"144 Rest: T20 – T20 (stellt 24)",t:"Start auf 20 oder 19."},163:{s:"Bogey (T20–T19–T18 stellt 2)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},162:{s:"Bogey (T20–T20–T14 stellt 10)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},161:{s:"T20 – T17 – Bull",a:"141 Rest: T20 – T17 (stellt 30)",t:"Bull-Finish."},160:{s:"T20 – T20 – D20",a:"140 Rest: T20 – T20 (stellt 20)",t:"Höchstes Finish auf D20."},159:{s:"Bogey (T20–T19–T14 stellt 10)",a:"Kein Check möglich (stellen)",t:"Letzte Bogey-Zahl!"},158:{s:"T20 – T20 – D19",a:"138 Rest: T20 – T18 (stellt 24)",t:"Zwei T20 für D19."},157:{s:"T20 – T19 – D20",a:"137 Rest: T19 – T20 (stellt 20)",t:"T20 und T19 stellt Tops."},156:{s:"T20 – T20 – D18",a:"136 Rest: T20 – T20 (stellt 16)",t:"Bei S20 mit 2x T20 auf D8 stellen."},155:{s:"T20 – T19 – D19",a:"135 Rest: T20 – T15 (stellt 30)",t:"T20 – T19 lässt D19."},154:{s:"T20 – T18 – D20",a:"134 Rest: T20 – T18 (stellt 20)",t:"Sauberer Weg auf Tops."},153:{s:"T20 – T19 – D18",a:"133 Rest: T20 – T19 (stellt 16)",t:"T20 – T19 lässt D18."},152:{s:"T20 – T20 – D16",a:"132 Rest: T20 – T16 (stellt 24)",t:"High-Finish auf D16."},151:{s:"T20 – T17 – D20",a:"131 Rest: T20 – T13 (stellt 32)",t:"Alternativ T19 – T18 – D20."},150:{s:"T20 – T18 – D18",a:"130 Rest -> T20 – Bull (Check!)",t:"Ab 150 nach S20 über Bull checkbar!"},149:{s:"T20 – T19 – D16",a:"129 Rest -> T19 – Bull (Check!)",t:"S20 lässt 129 -> T19 – Bull."},148:{s:"T20 – T16 – D20",a:"128 Rest -> T18 – Bull (Check!)",t:"S20 lässt 128 -> T18 – Bull."},147:{s:"T20 – T17 – D18",a:"127 Rest -> T17 – Bull (Check!)",t:"S20 lässt 127 -> T17 – Bull."},146:{s:"T20 – T18 – D16",a:"126 Rest -> T16 – Bull (Check!)",t:"S20 lässt 126 -> T16 – Bull."},145:{s:"T20 – T15 – D20",a:"125 Rest -> T15 – Bull (Check!)",t:"S20 lässt 125 -> T15 – Bull."},144:{s:"T20 – T20 – D12",a:"124 Rest -> T14 – Bull (Check!)",t:"S20 lässt 124 -> T14 – Bull."},143:{s:"T20 – T17 – D16",a:"123 Rest -> T13 – Bull (Check!)",t:"S20 lässt 123 -> T13 – Bull."},142:{s:"T20 – T14 – D20",a:"122 Rest -> T12 – Bull (Check!)",t:"S20 lässt 122 -> T12 – Bull."},141:{s:"T20 – T19 – D12",a:"121 Rest -> T11 – Bull (Check!)",t:"S20 lässt 121 -> T11 – Bull."},140:{s:"T20 – T20 – D10 (o. T20–T16–D16)",a:"120 Rest: T20 – S20 (stellt 40)",t:"Nach S20 auf Tops stellen."},139:{s:"T19 – T14 – D20",a:"120 Rest: T20 – S20 (stellt 40)",t:"Start auf 19 oder 20."},138:{s:"T20 – T18 – D12",a:"118 Rest: T20 – S18 (stellt 40)",t:"Nach S20 auf Tops stellen."},137:{s:"T19 – T16 – D16",a:"118 Rest: T20 – S18 (stellt 40)",t:"T19 lässt 80 (T16–D16)."},136:{s:"T20 – T20 – D8",a:"116 Rest: T20 – S16 (stellt 40)",t:"2x T20 lässt D8."},135:{s:"Bull – T15 – D20 (o. T20–T17–D12)",a:"110 Rest (nach 25) -> T20 – Bull",t:"Start auf Bull: 25 lässt 110 (T20–Bull)!"},134:{s:"T20 – T14 – D16",a:"114 Rest: T20 – S14 (stellt 40)",t:"T20 lässt 74 (T14–D16)."},133:{s:"T20 – T19 – D8",a:"113 Rest: T20 – S13 (stellt 40)",t:"T20–T19 lässt D8."},132:{s:"Bull – Bull – D16 (o. T20–T16–D12)",a:"107 Rest (nach 25) -> T19 – Bull",t:"25 lässt 107 (T19–Bull)!"},131:{s:"T20 – T13 – D16",a:"111 Rest: T20 – S19 (stellt 32)",t:"T20 lässt 71 (T13–D16)."},130:{s:"T20 – T20 – D5 (o. T20–S20–Bull)",a:"110 Rest -> T20 – Bull",t:"S20 lässt 110 -> T20 – Bull."},129:{s:"T19 – T16 – D12",a:"110 Rest (nach S19) -> T20 – Bull",t:"Auf 19 starten! S19 lässt 110."},128:{s:"T18 – T14 – D16",a:"110 Rest (nach S18) -> T20 – Bull",t:"Auf 18 starten! S18 lässt 110."},127:{s:"T20 – T17 – D8",a:"107 Rest -> T19 – Bull",t:"S20 lässt 107 -> T19 – Bull."},126:{s:"T19 – T19 – D6",a:"107 Rest (nach S19) -> T19 – Bull",t:"S19 lässt 107 -> T19 – Bull."},125:{s:"25 – T20 – D20 (Start auf Bull!)",a:"100 Rest (nach 25) -> T20 – D20",t:"Start auf Bull! 25 lässt 100, 50 lässt 75."},124:{s:"T20 – T16 – D8",a:"104 Rest -> T18 – Bull",t:"S20 lässt 104 -> T18 – Bull."},123:{s:"T19 – T16 – D9",a:"104 Rest (nach S19) -> T18 – Bull",t:"S19 lässt 104 -> T18 – Bull."},122:{s:"T18 – T18 – D7",a:"104 Rest (nach S18) -> T18 – Bull",t:"Start auf 18! S18 lässt 104 -> T18 – Bull."},121:{s:"T20 – T11 – D14",a:"101 Rest (nach S20) -> T17 – Bull",t:"S20 lässt 101 -> T17 – Bull."},120:{s:"T20 – S20 – D20 (Shanghai)",a:"100 Rest -> T20 – D20",t:"Shanghai 20!"},119:{s:"T19 – T12 – D13",a:"100 Rest (nach S19) -> T20 – D20",t:"Start auf 19! S19 lässt 100."},118:{s:"T20 – S18 – D20",a:"98 Rest -> T20 – D19",t:"S20 lässt 98."},117:{s:"T20 – S17 – D20",a:"97 Rest -> T19 – D20",t:"S20 lässt 97."},116:{s:"T20 – S16 – D20",a:"96 Rest -> T20 – D18",t:"S20 lässt 96."},115:{s:"T20 – S15 – D20",a:"95 Rest -> T19 – D19",t:"S20 lässt 95."},114:{s:"T20 – S14 – D20",a:"94 Rest -> T18 – D20",t:"S20 lässt 94."},113:{s:"T20 – S13 – D20",a:"93 Rest -> T19 – D18",t:"S20 lässt 93."},112:{s:"T20 – S12 – D20",a:"92 Rest -> T20 – D16",t:"S20 lässt 92."},111:{s:"T20 – S19 – D16",a:"91 Rest -> T17 – D20",t:"S20 lässt 91."},110:{s:"T20 – S18 – D16 (o. T20–Bull)",a:"90 Rest -> T20 – D15 (o. T18–D18)",t:"S20 lässt 90."},109:{s:"T20 – S17 – D16",a:"89 Rest -> T19 – D16",t:"S20 lässt 89."},108:{s:"T20 – S16 – D16",a:"88 Rest -> T20 – D14",t:"S20 lässt 88."},107:{s:"T19 – S18 – D16 (o. T19–Bull)",a:"88 Rest -> T20 – D14",t:"S19 lässt 88."},106:{s:"T20 – S14 – D16",a:"86 Rest -> T18 – D16",t:"S20 lässt 86."},105:{s:"T20 – S13 – D16",a:"85 Rest -> T15 – D20",t:"S20 lässt 85."},104:{s:"T18 – S18 – D16 (o. T18–Bull)",a:"86 Rest (nach S18) -> T18 – D16",t:"Immer auf 18 starten! S18 lässt 86 (T18–D16)."},103:{s:"T19 – S14 – D16",a:"84 Rest (nach S19) -> T20 – D12",t:"S19 lässt 84."},102:{s:"T20 – S10 – D16",a:"82 Rest -> Bull – D16 (o. T14–D20)",t:"S20 lässt 82."},101:{s:"T20 –
