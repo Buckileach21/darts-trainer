@@ -3,11 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Darts Trainer</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Darts Trainer">
+<meta name="theme-color" content="#0f172a">
+<title>Darts Trainer & Mental-Coach</title>
 <style>
-*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
-body{margin:0;padding:12px;background:#0f172a;color:#f8fafc;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif;-webkit-tap-highlight-color:transparent}
+body{margin:0;padding:12px;background:#0f172a;color:#f8fafc;display:flex;flex-direction:column;align-items:center;min-height:100vh;user-select:none}
 .app{width:100%;max-width:680px}
+
+/* Top Haupt-Umschalter (Rechen-Trainer vs. Mental-Coach) */
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#090d16;padding:6px;border-radius:12px;border:1px solid #334155;margin-bottom:12px}
+.ms-btn{background:transparent;color:#94a3b8;border:none;padding:10px 8px;border-radius:8px;font-weight:800;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.ms-btn.active{background:#10b981;color:#052e16;box-shadow:0 2px 8px rgba(16,185,129,.25)}
+
 header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;background:#1e293b;padding:12px;border-radius:12px;border:1px solid #334155}
 .title{font-size:1.1rem;font-weight:700}
 .stats{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -18,6 +28,7 @@ header{display:flex;justify-content:space-between;align-items:center;flex-wrap:w
 .bsm{background:#334155;color:#f8fafc;border:none;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600}
 .bpact{background:#f59e0b;color:#000}
 .tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.tabs-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .tbtn{background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:10px 6px;border-radius:10px;font-weight:600;font-size:.82rem;cursor:pointer;text-align:center}
 .tbtn.active{background:#10b981;color:#052e16;border-color:#10b981;font-weight:700}
 .fbar{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
@@ -39,74 +50,223 @@ header{display:flex;justify-content:space-between;align-items:center;flex-wrap:w
 .ilbl{font-size:.75rem;text-transform:uppercase;color:#94a3b8}
 .ival{font-size:1.25rem;font-weight:800;margin-top:4px;color:#38bdf8}
 .ival.alt{color:#f59e0b}
+
+/* Mental-Coach (OcheMind) Styles */
+.m-ring-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 0}
+.m-zone-pill{display:inline-block;padding:5px 12px;border-radius:99px;font-size:.78rem;font-weight:700;background:#0f172a;color:#38bdf8;border:1px solid #334155;margin-bottom:12px}
+.m-ring{width:175px;height:175px;border-radius:50%;border:5px solid #10b981;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;transition:transform .8s ease-in-out,border-color .3s;background:radial-gradient(circle,rgba(16,185,129,.16) 0%,rgba(15,23,42,0) 70%)}
+.m-ptitle{font-size:.95rem;font-weight:800;margin-bottom:4px}
+.m-ptimer{font-size:2.1rem;font-weight:900;color:#10b981}
+.m-btn{width:100%;padding:14px;border-radius:10px;border:none;font-size:1rem;font-weight:800;cursor:pointer;margin-top:8px}
+.m-btn-start{background:#10b981;color:#052e16}
+.m-btn-stop{background:#ef4444;color:#fff}
+.m-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.m-good{background:rgba(16,185,129,.2);border:2px solid #10b981;color:#6ee7b7;padding:13px 8px;border-radius:10px;font-weight:800;font-size:.9rem;cursor:pointer}
+.m-bad{background:rgba(239,68,68,.18);border:2px solid #ef4444;color:#fca5a5;padding:13px 8px;border-radius:10px;font-weight:800;font-size:.9rem;cursor:pointer}
+.m-trow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid #334155;margin-top:12px;font-size:.86rem;color:#cbd5e1}
+.sos-card{background:#0f172a;border-left:4px solid #f59e0b;border-radius:10px;padding:14px;margin-bottom:10px}
+.sos-card h3{margin:0 0 6px 0;font-size:.95rem;color:#f59e0b}
+.sos-card p{margin:0;font-size:.88rem;line-height:1.45;color:#e2e8f0}
 </style>
 </head>
 <body>
 <div class="app">
-  <header>
-    <div class="title">🎯 Darts Trainer</div>
-    <div class="stats">
-      <div class="badge">🔥 <span id="stV">0</span></div>
-      <div class="badge">✅ <span id="scV">0/0</span></div>
-      <div class="tbox">
-        <span id="tDisp" class="tdisp">0.0s</span>
-        <button id="pBtn" class="bsm" onclick="togP()">⏸️ Pause</button>
-        <button class="bsm" onclick="resT()">🔄</button>
-        <button id="tBtn" class="bsm" onclick="togTM()">⏱️ Ein</button>
+
+  <!-- HAUPT-UMSCHALTER -->
+  <div class="mode-switch">
+    <button id="swCalc" class="ms-btn active" onclick="switchSuite('calc')">🎯 Checkout & Rechnen</button>
+    <button id="swMental" class="ms-btn" onclick="switchSuite('mental')">🧠 Mental-Coach</button>
+  </div>
+
+  <!-- ==========================================
+       BEREICH 1: BESTEHENDER DARTS-TRAINER
+       ========================================== -->
+  <div id="suiteCalc">
+    <header>
+      <div class="title">🎯 Darts Trainer</div>
+      <div class="stats">
+        <div class="badge">🔥 <span id="stV">0</span></div>
+        <div class="badge">✅ <span id="scV">0/0</span></div>
+        <div class="tbox">
+          <span id="tDisp" class="tdisp">0.0s</span>
+          <button id="pBtn" class="bsm" onclick="togP()">⏸️ Pause</button>
+          <button class="bsm" onclick="resT()">🔄</button>
+          <button id="tBtn" class="bsm" onclick="togTM()">⏱️ Ein</button>
+        </div>
+      </div>
+    </header>
+    <div class="tabs">
+      <button class="tbtn active" onclick="setM(1)">1. Checkout-Quiz</button>
+      <button class="tbtn" onclick="setM(2)">2. Single-Rettung</button>
+      <button class="tbtn" onclick="setM(3)">3. Rest-Sprint</button>
+      <button class="tbtn" onclick="setM(4)">4. Rechner 40-170</button>
+    </div>
+    <div id="fBar" class="fbar">
+      <button class="fchip active" onclick="setF('all',this)">Alle 40-170</button>
+      <button class="fchip" onclick="setF('61-100',this)">61-100 (2-Dart)</button>
+      <button class="fchip" onclick="setF('101-130',this)">101-130 (Bull)</button>
+      <button class="fchip" onclick="setF('131-170',this)">131-170 (High)</button>
+      <button class="fchip" onclick="setF('40-60',this)">40-60 (Single)</button>
+    </div>
+    <div id="qView" class="card">
+      <div id="qTag" style="text-align:center;font-size:.78rem;color:#38bdf8;font-weight:700">STANDARD CHECKOUT</div>
+      <div id="hScore" class="hero">89 Rest</div>
+      <div id="sPrompt" class="sub">Welcher Standard-Weg ist optimal?</div>
+      <div id="oCont" class="ogrid"></div>
+      <div id="fBox" class="fbox"></div>
+      <button id="nBtn" class="nbtn" onclick="nextQ()">Nächste Aufgabe ➡️</button>
+    </div>
+    <div id="lView" class="card" style="display:none">
+      <div class="lrow">
+        <input type="number" id="lNum" class="lnum" min="40" max="170" value="104" oninput="updL(this.value)">
+        <input type="range" id="lSl" class="lsl" min="40" max="170" value="104" oninput="updL(this.value)">
+      </div>
+      <div class="ipanel">
+        <div class="ilbl">Standard-Weg (1. Dart Triple/Bull)</div>
+        <div id="lkStd" class="ival"></div>
+      </div>
+      <div class="ipanel">
+        <div class="ilbl">1. Dart nur Single (Umbau-Weg)</div>
+        <div id="lkAlt" class="ival alt"></div>
+      </div>
+      <div class="ipanel">
+        <div class="ilbl">Board-Strategie</div>
+        <div id="lkTip" style="margin-top:6px;font-size:.92rem"></div>
       </div>
     </div>
-  </header>
-  <div class="tabs">
-    <button class="tbtn active" onclick="setM(1)">1. Checkout-Quiz</button>
-    <button class="tbtn" onclick="setM(2)">2. Single-Rettung</button>
-    <button class="tbtn" onclick="setM(3)">3. Rest-Sprint</button>
-    <button class="tbtn" onclick="setM(4)">4. Rechner 40-170</button>
   </div>
-  <div id="fBar" class="fbar">
-    <button class="fchip active" onclick="setF('all',this)">Alle 40-170</button>
-    <button class="fchip" onclick="setF('61-100',this)">61-100 (2-Dart)</button>
-    <button class="fchip" onclick="setF('101-130',this)">101-130 (Bull)</button>
-    <button class="fchip" onclick="setF('131-170',this)">131-170 (High)</button>
-    <button class="fchip" onclick="setF('40-60',this)">40-60 (Single)</button>
+
+  <!-- ==========================================
+       BEREICH 2: OCHEMIND MENTAL-COACH
+       ========================================== -->
+  <div id="suiteMental" style="display:none">
+    <header>
+      <div class="title">🧠 OcheMind Coach</div>
+      <div class="stats">
+        <div class="badge" title="Kopf-Ruhe-Quote">🧘 <span id="mCalmV">100%</span></div>
+        <div class="badge" title="Saubere Serie">🔥 <span id="mStrV">0</span></div>
+        <div class="badge" title="Aufnahmen">🎯 <span id="mRepV">0</span></div>
+        <button id="mMuteBtn" class="bsm" onclick="togAudio()">🔊 Ton AN</button>
+      </div>
+    </header>
+
+    <div class="tabs-3">
+      <button class="tbtn active" id="mtBtn1" onclick="setMM(1)">1. 3-Zonen-Takt</button>
+      <button class="tbtn" id="mtBtn2" onclick="setMM(2)">2. Druck-Spiele</button>
+      <button class="tbtn" id="mtBtn3" onclick="setMM(3)">3. Liga-SOS</button>
+    </div>
+
+    <!-- MENTAL TAB 1: 3-ZONEN AUDIO-TAKTGEBER -->
+    <div id="mView1" class="card">
+      <div class="m-ring-wrap">
+        <span class="m-zone-pill" id="mZonePill">Bereit hinter dem Oche</span>
+        <div class="m-ring" id="mRing">
+          <div class="m-ptitle" id="mPTitle">Routine starten</div>
+          <div class="m-ptimer" id="mPTimer">–</div>
+        </div>
+      </div>
+      <button id="mStartBtn" class="m-btn m-btn-start" onclick="togPacer()">▶ 3-Zonen-Audio-Routine starten</button>
+
+      <div class="m-trow">
+        <span>⚠️ Zufalls-Störung am Oche („Icing“, 25%)</span>
+        <input type="checkbox" id="mIcingChk" style="width:20px;height:20px">
+      </div>
+      <div class="m-trow" style="border-top:none;padding-top:2px">
+        <span>🔁 Endlos-Schleife (automatisch nächste Aufnahme)</span>
+        <input type="checkbox" id="mLoopChk" style="width:20px;height:20px">
+      </div>
+
+      <div style="border-top:1px solid #334155;margin-top:10px;padding-top:12px">
+        <div style="text-align:center;font-size:.8rem;color:#94a3b8;margin-bottom:6px">Wie war dein Kopf bei den 3 Darts? (Unabhängig vom Treffer!)</div>
+        <div class="m-row2">
+          <button class="m-good" onclick="logMRep(true)">✅ Routine & Kopf ruhig</button>
+          <button class="m-bad" onclick="logMRep(false)">❌ Gegrübelt / Zu hektisch</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENTAL TAB 2: DRUCK-SPIELE -->
+    <div id="mView2" class="card" style="display:none">
+      <div class="fbar" style="margin-bottom:10px">
+        <button class="fchip active" id="pgChip1" onclick="setPGame(1)">🔥 Überleben am Draht</button>
+        <button class="fchip" id="pgChip2" onclick="setPGame(2)">🎯 1-Dart-Entscheidung</button>
+        <button class="fchip" id="pgChip3" onclick="setPGame(3)">⚡ Nach 26er-Schock</button>
+      </div>
+
+      <div id="pgTag" style="text-align:center;font-size:.78rem;color:#38bdf8;font-weight:700">STUFE 1 VON 10 • ÜBERLEBEN AM DRAHT</div>
+      <div id="pgHero" class="hero" style="color:#f59e0b">40 Rest</div>
+      <div id="pgSub" class="sub" style="margin-bottom:10px">Decider im Ligaspiel! Gegner steht auf 32 Rest. Du hast 3 Darts.</div>
+
+      <!-- Eingeblendete Weg-Hilfe aus deiner DB -->
+      <div id="pgHintBox" class="ipanel" style="text-align:center;margin-bottom:12px">
+        <div class="ilbl">Dein Plan VOR dem Oche (Zone 2):</div>
+        <div id="pgWayStd" style="font-weight:800;color:#38bdf8;margin-top:4px;font-size:1.05rem">D20 (Tops)</div>
+        <div id="pgWayAlt" style="font-size:.82rem;color:#f59e0b;margin-top:3px">Bei S20 -> D10 (bei S10 -> D5)</div>
+      </div>
+
+      <!-- Straf-Timer bei Fehlwurf -->
+      <div id="pgPenalty" style="display:none;background:rgba(239,68,68,.16);border:1px solid #ef4444;padding:14px;border-radius:10px;text-align:center;margin-bottom:12px">
+        <div style="font-weight:800;color:#fca5a5">🛑 Mentaler Reset – Darts ablegen!</div>
+        <div style="font-size:.84rem;color:#e2e8f0;margin-top:4px">Hände ausschütteln, zweimal einatmen, lang ausatmen. Kein Wurf erlaubt!</div>
+        <div id="pgPenTimer" style="font-size:1.8rem;font-weight:900;color:#f59e0b;margin-top:6px">15s</div>
+      </div>
+
+      <div id="pgActionRow" class="m-row2">
+        <button class="m-good" onclick="resPGame(true)">🎯 Aufgabe gelöst!</button>
+        <button class="m-bad" onclick="resPGame(false)">💥 Verpasst (Reset)</button>
+      </div>
+      <button class="bsm" style="width:100%;margin-top:10px;padding:11px;font-size:.88rem" onclick="speakCurrentScenario()">🔊 Szenario & Fokus-Anker vorlesen</button>
+    </div>
+
+    <!-- MENTAL TAB 3: LIGA-SOS KARTEN -->
+    <div id="mView3" style="display:none">
+      <div class="sos-card">
+        <h3>1. „Ich kann meinen Kopf nicht ausschalten!“</h3>
+        <p><strong>Sofort-Technik:</strong> Nutze das <strong>1-2-3-Mantra</strong> im Wurf. Sprich innerlich mit: <em>„Eins“</em> (Mikro-Punkt fixieren), <em>„Zwei“</em> (Zurückziehen), <em>„Drei“</em> (Loslassen). Solange dein Sprachzentrum zählt, kann es keine Zweifel formulieren.</p>
+      </div>
+      <div class="sos-card">
+        <h3>2. „Ich bin nervös, Puls rast & Arm wird fest!“</h3>
+        <p><strong>Sofort-Technik:</strong> Mach in Zone 2 (ein Schritt vor der Linie) den <strong>Physiologischen Seufzer</strong>: 2x kurz durch die Nase einatmen, lang durch den Mund ausatmen. Senke den Griffdruck auf <strong>3 von 10</strong>.</p>
+      </div>
+      <div class="sos-card">
+        <h3>3. „Quiet Eye statt Technik-Kontrolle“</h3>
+        <p><strong>Sofort-Technik:</strong> Denk im Match niemals an deinen Ellenbogen. Such dir eine einzelne helle Sisalfaser im Zielsegment und starre sie 1 Sekunde ruhig an, bevor du anziehst. Die Augen führen die Hand automatisch.</p>
+      </div>
+      <div class="sos-card">
+        <h3>4. „Frust nach 26 oder verpassten Doppeln“</h3>
+        <p><strong>Sofort-Technik:</strong> Ärger ist nur erlaubt, bis du hinter dem Oche stehst. Wurfhand einmal kräftig ausschütteln („Reset-Anker“) – damit ist die alte Aufnahme gelöscht.</p>
+      </div>
+    </div>
   </div>
-  <div id="qView" class="card">
-    <div id="qTag" style="text-align:center;font-size:.78rem;color:#38bdf8;font-weight:700">STANDARD CHECKOUT</div>
-    <div id="hScore" class="hero">89 Rest</div>
-    <div id="sPrompt" class="sub">Welcher Standard-Weg ist optimal?</div>
-    <div id="oCont" class="ogrid"></div>
-    <div id="fBox" class="fbox"></div>
-    <button id="nBtn" class="nbtn" onclick="nextQ()">Nächste Aufgabe ➡️</button>
-  </div>
-  <div id="lView" class="card" style="display:none">
-    <div class="lrow">
-      <input type="number" id="lNum" class="lnum" min="40" max="170" value="104" oninput="updL(this.value)">
-      <input type="range" id="lSl" class="lsl" min="40" max="170" value="104" oninput="updL(this.value)">
-    </div>
-    <div class="ipanel">
-      <div class="ilbl">Standard-Weg (1. Dart Triple/Bull)</div>
-      <div id="lkStd" class="ival"></div>
-    </div>
-    <div class="ipanel">
-      <div class="ilbl">1. Dart nur Single (Umbau-Weg)</div>
-      <div id="lkAlt" class="ival alt"></div>
-    </div>
-    <div class="ipanel">
-      <div class="ilbl">Board-Strategie</div>
-      <div id="lkTip" style="margin-top:6px;font-size:.92rem"></div>
-    </div>
-  </div>
+
 </div>
+
 <script>
+/* =========================================================
+   1. DATENBANK & LOGIK DEINES DARTS-TRAINERS (1:1 ERHALTEN)
+   ========================================================= */
 const DB={170:{s:"T20 – T20 – Bull",a:"150 Rest: T20 – T20 (stellt 30)",t:"Big Fish! Bei S20 kein Check möglich."},169:{s:"Bogey (T20–T19–T16 stellt 4)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},168:{s:"Bogey (T20–T20–T16 stellt 10)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},167:{s:"T20 – T19 – Bull",a:"147 Rest: T19 – T20 (stellt 30)",t:"Zweithöchstes Finish."},166:{s:"Bogey (T20–T18–T18 stellt 8)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},165:{s:"Bogey (T20–T19–T18 stellt 4)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},164:{s:"T20 – T18 – Bull (o. T19–T19–Bull)",a:"144 Rest: T20 – T20 (stellt 24)",t:"Start auf 20 oder 19."},163:{s:"Bogey (T20–T19–T18 stellt 2)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},162:{s:"Bogey (T20–T20–T14 stellt 10)",a:"Kein Check möglich (stellen)",t:"Bogey-Zahl!"},161:{s:"T20 – T17 – Bull",a:"141 Rest: T20 – T17 (stellt 30)",t:"Bull-Finish."},160:{s:"T20 – T20 – D20",a:"140 Rest: T20 – T20 (stellt 20)",t:"Höchstes Finish auf D20."},159:{s:"Bogey (T20–T19–T14 stellt 10)",a:"Kein Check möglich (stellen)",t:"Letzte Bogey-Zahl!"},158:{s:"T20 – T20 – D19",a:"138 Rest: T20 – T18 (stellt 24)",t:"Zwei T20 für D19."},157:{s:"T20 – T19 – D20",a:"137 Rest: T19 – T20 (stellt 20)",t:"T20 und T19 stellt Tops."},156:{s:"T20 – T20 – D18",a:"136 Rest: T20 – T20 (stellt 16)",t:"Bei S20 mit 2x T20 auf D8 stellen."},155:{s:"T20 – T19 – D19",a:"135 Rest: T20 – T15 (stellt 30)",t:"T20 – T19 lässt D19."},154:{s:"T20 – T18 – D20",a:"134 Rest: T20 – T18 (stellt 20)",t:"Sauberer Weg auf Tops."},153:{s:"T20 – T19 – D18",a:"133 Rest: T20 – T19 (stellt 16)",t:"T20 – T19 lässt D18."},152:{s:"T20 – T20 – D16",a:"132 Rest: T20 – T16 (stellt 24)",t:"High-Finish auf D16."},151:{s:"T20 – T17 – D20",a:"131 Rest: T20 – T13 (stellt 32)",t:"Alternativ T19 – T18 – D20."},150:{s:"T20 – T18 – D18",a:"130 Rest -> T20 – Bull (Check!)",t:"Ab 150 nach S20 über Bull checkbar!"},149:{s:"T20 – T19 – D16",a:"129 Rest -> T19 – Bull (Check!)",t:"S20 lässt 129 -> T19 – Bull."},148:{s:"T20 – T16 – D20",a:"128 Rest -> T18 – Bull (Check!)",t:"S20 lässt 128 -> T18 – Bull."},147:{s:"T20 – T17 – D18",a:"127 Rest -> T17 – Bull (Check!)",t:"S20 lässt 127 -> T17 – Bull."},146:{s:"T20 – T18 – D16",a:"126 Rest -> T16 – Bull (Check!)",t:"S20 lässt 126 -> T16 – Bull."},145:{s:"T20 – T15 – D20",a:"125 Rest -> T15 – Bull (Check!)",t:"S20 lässt 125 -> T15 – Bull."},144:{s:"T20 – T20 – D12",a:"124 Rest -> T14 – Bull (Check!)",t:"S20 lässt 124 -> T14 – Bull."},143:{s:"T20 – T17 – D16",a:"123 Rest -> T13 – Bull (Check!)",t:"S20 lässt 123 -> T13 – Bull."},142:{s:"T20 – T14 – D20",a:"122 Rest -> T12 – Bull (Check!)",t:"S20 lässt 122 -> T12 – Bull."},141:{s:"T20 – T19 – D12",a:"121 Rest -> T11 – Bull (Check!)",t:"S20 lässt 121 -> T11 – Bull."},140:{s:"T20 – T20 – D10 (o. T20–T16–D16)",a:"120 Rest: T20 – S20 (stellt 40)",t:"Nach S20 auf Tops stellen."},139:{s:"T19 – T14 – D20",a:"120 Rest: T20 – S20 (stellt 40)",t:"Start auf 19 oder 20."},138:{s:"T20 – T18 – D12",a:"118 Rest: T20 – S18 (stellt 40)",t:"Nach S20 auf Tops stellen."},137:{s:"T19 – T16 – D16",a:"118 Rest: T20 – S18 (stellt 40)",t:"T19 lässt 80 (T16–D16)."},136:{s:"T20 – T20 – D8",a:"116 Rest: T20 – S16 (stellt 40)",t:"2x T20 lässt D8."},135:{s:"Bull – T15 – D20 (o. T20–T17–D12)",a:"110 Rest (nach 25) -> T20 – Bull",t:"Start auf Bull: 25 lässt 110 (T20–Bull)!"},134:{s:"T20 – T14 – D16",a:"114 Rest: T20 – S14 (stellt 40)",t:"T20 lässt 74 (T14–D16)."},133:{s:"T20 – T19 – D8",a:"113 Rest: T20 – S13 (stellt 40)",t:"T20–T19 lässt D8."},132:{s:"Bull – Bull – D16 (o. T20–T16–D12)",a:"107 Rest (nach 25) -> T19 – Bull",t:"25 lässt 107 (T19–Bull)!"},131:{s:"T20 – T13 – D16",a:"111 Rest: T20 – S19 (stellt 32)",t:"T20 lässt 71 (T13–D16)."},130:{s:"T20 – T20 – D5 (o. T20–S20–Bull)",a:"110 Rest -> T20 – Bull",t:"S20 lässt 110 -> T20 – Bull."},129:{s:"T19 – T16 – D12",a:"110 Rest (nach S19) -> T20 – Bull",t:"Auf 19 starten! S19 lässt 110."},128:{s:"T18 – T14 – D16",a:"110 Rest (nach S18) -> T20 – Bull",t:"Auf 18 starten! S18 lässt 110."},127:{s:"T20 – T17 – D8",a:"107 Rest -> T19 – Bull",t:"S20 lässt 107 -> T19 – Bull."},126:{s:"T19 – T19 – D6",a:"107 Rest (nach S19) -> T19 – Bull",t:"S19 lässt 107 -> T19 – Bull."},125:{s:"25 – T20 – D20 (Start auf Bull!)",a:"100 Rest (nach 25) -> T20 – D20",t:"Start auf Bull! 25 lässt 100, 50 lässt 75."},124:{s:"T20 – T16 – D8",a:"104 Rest -> T18 – Bull",t:"S20 lässt 104 -> T18 – Bull."},123:{s:"T19 – T16 – D9",a:"104 Rest (nach S19) -> T18 – Bull",t:"S19 lässt 104 -> T18 – Bull."},122:{s:"T18 – T18 – D7",a:"104 Rest (nach S18) -> T18 – Bull",t:"Start auf 18! S18 lässt 104 -> T18 – Bull."},121:{s:"T20 – T11 – D14",a:"101 Rest (nach S20) -> T17 – Bull",t:"S20 lässt 101 -> T17 – Bull."},120:{s:"T20 – S20 – D20 (Shanghai)",a:"100 Rest -> T20 – D20",t:"Shanghai 20!"},119:{s:"T19 – T12 – D13",a:"100 Rest (nach S19) -> T20 – D20",t:"Start auf 19! S19 lässt 100."},118:{s:"T20 – S18 – D20",a:"98 Rest -> T20 – D19",t:"S20 lässt 98."},117:{s:"T20 – S17 – D20",a:"97 Rest -> T19 – D20",t:"S20 lässt 97."},116:{s:"T20 – S16 – D20",a:"96 Rest -> T20 – D18",t:"S20 lässt 96."},115:{s:"T20 – S15 – D20",a:"95 Rest -> T19 – D19",t:"S20 lässt 95."},114:{s:"T20 – S14 – D20",a:"94 Rest -> T18 – D20",t:"S20 lässt 94."},113:{s:"T20 – S13 – D20",a:"93 Rest -> T19 – D18",t:"S20 lässt 93."},112:{s:"T20 – S12 – D20",a:"92 Rest -> T20 – D16",t:"S20 lässt 92."},111:{s:"T20 – S19 – D16",a:"91 Rest -> T17 – D20",t:"S20 lässt 91."},110:{s:"T20 – S18 – D16 (o. T20–Bull)",a:"90 Rest -> T20 – D15 (o. T18–D18)",t:"S20 lässt 90."},109:{s:"T20 – S17 – D16",a:"89 Rest -> T19 – D16",t:"S20 lässt 89."},108:{s:"T20 – S16 – D16",a:"88 Rest -> T20 – D14",t:"S20 lässt 88."},107:{s:"T19 – S18 – D16 (o. T19–Bull)",a:"88 Rest -> T20 – D14",t:"S19 lässt 88."},106:{s:"T20 – S14 – D16",a:"86 Rest -> T18 – D16",t:"S20 lässt 86."},105:{s:"T20 – S13 – D16",a:"85 Rest -> T15 – D20",t:"S20 lässt 85."},104:{s:"T18 – S18 – D16 (o. T18–Bull)",a:"86 Rest (nach S18) -> T18 – D16",t:"Immer auf 18 starten! S18 lässt 86 (T18–D16)."},103:{s:"T19 – S14 – D16",a:"84 Rest (nach S19) -> T20 – D12",t:"S19 lässt 84."},102:{s:"T20 – S10 – D16",a:"82 Rest -> Bull – D16 (o. T14–D20)",t:"S20 lässt 82."},101:{s:"T20 – S9 – D16 (o. T17–Bull)",a:"81 Rest -> T19 – D12",t:"S20 lässt 81."},100:{s:"T20 – D20",a:"80 Rest -> T20 – D10",t:"Klassisches 2-Dart-Finish."},99:{s:"T19 – S10 – D16",a:"80 Rest (nach S19) -> T20 – D10",t:"Einzige 3-Dart-Zahl unter 100!"},98:{s:"T20 – D19",a:"78 Rest -> T18 – D12",t:"S20 lässt 78."},97:{s:"T19 – D20",a:"78 Rest -> T18 – D12",t:"S19 lässt 78."},96:{s:"T20 – D18",a:"76 Rest -> T20 – D8",t:"Auf 20 bleiben!"},95:{s:"T19 – D19",a:"76 Rest -> T20 – D8",t:"S19 lässt 76."},94:{s:"T18 – D20",a:"76 Rest -> T20 – D8",t:"S18 lässt 76."},93:{s:"T19 – D18",a:"74 Rest -> T14 – D16",t:"S19 lässt 74."},92:{s:"T20 – D16",a:"72 Rest -> T16 – D12",t:"S20 lässt 72."},91:{s:"T17 – D20",a:"74 Rest -> T14 – D16",t:"S17 lässt 74."},90:{s:"T20 – D15 (o. T18–D18)",a:"70 Rest (nach S20) -> T18 – D8",t:"S20 lässt 70."},89:{s:"T19 – D16",a:"70 Rest -> T18 – D8",t:"S19 lässt 70."},88:{s:"T20 – D14 (o. T16–D20)",a:"68 Rest -> T20 – D4",t:"S20 lässt 68."},87:{s:"T17 – D18",a:"70 Rest -> T18 – D8",t:"S17 lässt 70."},86:{s:"T18 – D16",a:"68 Rest -> T20 – D4",t:"S18 lässt 68."},85:{s:"T15 – D20 (o. T19–D14)",a:"70 Rest (nach S15) -> T18 – D8",t:"S15 lässt 70."},84:{s:"T20 – D12",a:"64 Rest -> T16 – D8",t:"S20 lässt 64."},83:{s:"T17 – D16",a:"66 Rest -> T10 – D18",t:"S17 lässt 66."},82:{s:"Bull – D16 (o. T14–D20)",a:"57 Rest (nach 25) -> S17 – D20",t:"Start auf Bull! 25 lässt 57 (S17–D20)."},81:{s:"T19 – D12",a:"62 Rest (nach S19) -> T10 – D16",t:"S19 lässt 62."},80:{s:"T20 – D10",a:"60 Rest -> S20 – D20",t:"Ab 80 nach Single kein Triple mehr nötig!"},79:{s:"T19 – D11",a:"60 Rest -> S20 – D20",t:"S19 lässt 60."},78:{s:"T18 – D12",a:"60 Rest -> S20 – D20",t:"S18 lässt 60."},77:{s:"T19 – D10",a:"58 Rest -> S18 – D20",t:"S19 lässt 58."},76:{s:"T20 – D8",a:"56 Rest -> S16 – D20",t:"S20 lässt 56."},75:{s:"T17 – D12",a:"58 Rest -> S18 – D20",t:"S17 lässt 58."},74:{s:"T14 – D16",a:"60 Rest -> S20 – D20",t:"S14 lässt 60."},73:{s:"T19 – D8",a:"54 Rest -> S14 – D20",t:"S19 lässt 54."},72:{s:"T16 – D12",a:"56 Rest -> S16 – D20",t:"S16 lässt 56."},71:{s:"T13 – D16",a:"58 Rest -> S18 – D20",t:"S13 lässt 58."},70:{s:"T18 – D8",a:"52 Rest -> S20 – D16",t:"S18 lässt 52."},69:{s:"T19 – D6",a:"50 Rest -> S18 – D16",t:"S19 lässt 50."},68:{s:"T20 – D4",a:"48 Rest -> S16 – D16",t:"S20 lässt 48."},67:{s:"T17 – D8",a:"50 Rest -> S18 – D16",t:"S17 lässt 50."},66:{s:"T10 – D18",a:"56 Rest -> S16 – D20",t:"S10 lässt 56."},65:{s:"25 – D20 (o. T19–D4)",a:"46 Rest (nach S19) -> S14 – D16",t:"S19 lässt 46."},64:{s:"T16 – D8",a:"48 Rest -> S16 – D16",t:"Safe-Haven 16/8!"},63:{s:"T13 – D12",a:"50 Rest -> S18 – D16",t:"S13 lässt 50."},62:{s:"T10 – D16",a:"52 Rest -> S20 – D16",t:"S10 lässt 52."},61:{s:"T15 – D8",a:"46 Rest -> S14 – D16",t:"S15 lässt 46."}};
 for(let i=60;i>=41;i--){let n20=i-40,n16=i-32,d16=n16<=20?" (o. S"+n16+"–D16)":"",th=i-n20*3;DB[i]={s:"S"+n20+" – D20"+d16,a:th>1&&th%2===0?"Bei T"+n20+" -> D"+(th/2):"Vorsicht vor T"+n20+" (Bust!)",t:"Einfach Single auf Lieblingsdoppel."}}
 DB[40]={s:"D20 (Tops)",a:"Bei S20 -> D10 (bei S10 -> D5)",t:"Kaskade D20 -> D10 -> D5."};
+
+let activeSuite='calc';
 let cM=1,cF='all',str=0,cor=0,tot=0,tTen=0,tRun=true,tEn=true,cAns='',cExp='';
-setInterval(()=>{if(tEn&&tRun&&cM!==4){tTen++;document.getElementById('tDisp').textContent=(tTen/10).toFixed(1)+'s'}},100);
+setInterval(()=>{if(activeSuite==='calc'&&tEn&&tRun&&cM!==4){tTen++;document.getElementById('tDisp').textContent=(tTen/10).toFixed(1)+'s'}},100);
+
+function switchSuite(s){
+  activeSuite=s;
+  document.getElementById('swCalc').classList.toggle('active',s==='calc');
+  document.getElementById('swMental').classList.toggle('active',s==='mental');
+  document.getElementById('suiteCalc').style.display=s==='calc'?'block':'none';
+  document.getElementById('suiteMental').style.display=s==='mental'?'block':'none';
+  if(s==='calc'&&pacerOn)stopPacer();
+}
+
 function togP(){if(!tEn)return;tRun=!tRun;let b=document.getElementById('pBtn'),d=document.getElementById('tDisp');b.textContent=tRun?'⏸️ Pause':'▶️ Weiter';b.classList.toggle('bpact',!tRun);d.classList.toggle('tpaused',!tRun)}
 function resT(){tTen=0;document.getElementById('tDisp').textContent='0.0s'}
 function togTM(){tEn=!tEn;document.getElementById('tBtn').textContent=tEn?'⏱️ Ein':'⏱️ Aus';if(!tEn)document.getElementById('tDisp').textContent='∞';else resT()}
-function setM(m){cM=m;document.querySelectorAll('.tbtn').forEach((b,i)=>b.classList.toggle('active',i===m-1));document.getElementById('qView').style.display=m===4?'none':'block';document.getElementById('lView').style.display=m===4?'block':'none';document.getElementById('fBar').style.display=(m===3||m===4)?'none':'flex';if(m!==4)nextQ();else updL(document.getElementById('lNum').value)}
-function setF(f,el){cF=f;document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));el.classList.add('active');nextQ()}
+function setM(m){cM=m;document.querySelectorAll('#suiteCalc .tbtn').forEach((b,i)=>b.classList.toggle('active',i===m-1));document.getElementById('qView').style.display=m===4?'none':'block';document.getElementById('lView').style.display=m===4?'block':'none';document.getElementById('fBar').style.display=(m===3||m===4)?'none':'flex';if(m!==4)nextQ();else updL(document.getElementById('lNum').value)}
+function setF(f,el){cF=f;document.querySelectorAll('#fBar .fchip').forEach(c=>c.classList.remove('active'));el.classList.add('active');nextQ()}
 function getP(){let mn=40,mx=170;if(cF==='61-100'){mn=61;mx=100}else if(cF==='101-130'){mn=101;mx=130}else if(cF==='131-170'){mn=131;mx=170}else if(cF==='40-60'){mn=40;mx=60}if(cM===2&&mn<61)mn=61;if(cM===2&&mx>150)mx=150;let a=[];for(let i=mn;i<=mx;i++)if(![169,168,166,165,163,162,159].includes(i))a.push(i);return a}
 function shuf(a){return a.sort(()=>Math.random()-.5)}
 function nextQ(){resT();document.getElementById('fBox').style.display='none';document.getElementById('nBtn').style.display='none';let c=document.getElementById('oCont');c.innerHTML='';if(cM===1||cM===2){let p=getP(),sc=p[Math.floor(Math.random()*p.length)],e=DB[sc];document.getElementById('hScore').textContent=sc+' Rest';if(cM===1){document.getElementById('qTag').textContent='MODUS 1: STANDARD-WEG';document.getElementById('sPrompt').textContent='Welcher Standard-Weg ist optimal?';cAns=e.s;cExp=sc+' Rest: '+e.s+' — '+e.t;let d=shuf(p.filter(x=>x!==sc&&DB[x].s!==e.s)).slice(0,3).map(x=>DB[x].s);renO([cAns,...d])}else{document.getElementById('qTag').textContent='MODUS 2: 1. DART SINGLE';document.getElementById('sPrompt').textContent='1. Dart geht ins Single! Wie baust du um?';cAns=e.a;cExp=sc+' Rest: '+e.a+' — '+e.t;let d=shuf(p.filter(x=>x!==sc&&DB[x].a!==e.a)).slice(0,3).map(x=>DB[x].a);renO([cAns,...d])}}else if(cM===3){let st=Math.floor(Math.random()*200)+121,th=[{l:'T20+S20+S5 (85)',v:85},{l:'T19+S19+S5 (81)',v:81},{l:'T20+S18+S17 (95)',v:95},{l:'S20+S19+S18 (57)',v:57},{l:'T20+T20+S5 (125)',v:125},{l:'T18+S18+S18 (90)',v:90}],t=th[Math.floor(Math.random()*th.length)],rm=st-t.v;document.getElementById('qTag').textContent='MODUS 3: REST-SPRINT';document.getElementById('hScore').textContent=st+' − '+t.v;document.getElementById('sPrompt').textContent='Geworfen: '+t.l;cAns=rm+' Rest';cExp=st+' − '+t.v+' = '+rm+' Rest';let o=new Set([cAns]);[-10,-4,2,4,6,10].forEach(d=>{if(o.size<4&&rm+d>0)o.add((rm+d)+' Rest')});renO(Array.from(o))}}
@@ -114,6 +274,174 @@ function renO(l){let c=document.getElementById('oCont');shuf(l).forEach(o=>{let 
 function chkA(b,ch){let bs=document.querySelectorAll('.obtn');bs.forEach(x=>x.disabled=true);tot++;if(ch===cAns){b.classList.add('correct');str++;cor++}else{b.classList.add('wrong');str=0;bs.forEach(x=>{if(x.textContent===cAns)x.classList.add('correct')})}document.getElementById('stV').textContent=str;document.getElementById('scV').textContent=cor+'/'+tot;let f=document.getElementById('fBox');f.textContent=cExp;f.style.display='block';document.getElementById('nBtn').style.display='block'}
 function updL(v){let s=parseInt(v,10)||40;if(s<40)s=40;if(s>170)s=170;document.getElementById('lNum').value=s;document.getElementById('lSl').value=s;let e=DB[s];document.getElementById('lkStd').textContent=e.s;document.getElementById('lkAlt').textContent=e.a;document.getElementById('lkTip').textContent=e.t}
 nextQ();
+
+/* =========================================================
+   2. OCHEMIND MENTAL-COACH LOGIK
+   ========================================================= */
+let audioOn=true,pacerOn=false,pacerTm=null,aCtx=null;
+let mReps=0,mClean=0,mStr=0;
+let curPGame=1,ladderIdx=0;
+
+const ladderScores=[40,32,56,64,76,81,92,104,110,121];
+const oneDartTargets=["D20 (Tops)","D16","D8","D12","D18","D10","Bullseye (50)"];
+const shockScenarios=[
+  {h:"26er-Schock!",s:"Du hast zweimal 26 geworfen, Gegner wirft 140. Aufgabe: Hand ausschütteln, ruhig atmen und 3 saubere Darts in das obere 20er-Segment legen (Mindestens 60 Punkte)."},
+  {h:"6 Doppel verpasst!",s:"Du hast 6 Matchdarts liegengelassen. Aufgabe: 1 Schritt zurück, Physiologischer Seufzer, Griffdruck auf 3/10 senken und D16 mit 3 Darts checken!"},
+  {h:"Unruhe im Raum!",s:"Gegner lässt sich ewig Zeit. Aufgabe: 5 Sekunden bewusst vor dem Oche warten, Mikro-Punkt in der T20 fixieren und mit 1-2-3-Rhythmus werfen."}
+];
+
+function initACtx(){if(!aCtx){const AC=window.AudioContext||window.webkitAudioContext;aCtx=new AC()}}
+function beep(f,d=0.25){
+  if(!audioOn)return;initACtx();
+  const o=aCtx.createOscillator(),g=aCtx.createGain();
+  o.type='sine';o.frequency.setValueAtTime(f,aCtx.currentTime);
+  g.gain.setValueAtTime(0.12,aCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,aCtx.currentTime+d);
+  o.connect(g);g.connect(aCtx.destination);o.start();o.stop(aCtx.currentTime+d);
+}
+function say(txt){
+  if(!audioOn||!('speechSynthesis' in window))return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(txt);u.lang='de-DE';u.rate=1.03;
+  window.speechSynthesis.speak(u);
+}
+function togAudio(){
+  audioOn=!audioOn;
+  document.getElementById('mMuteBtn').textContent=audioOn?'🔊 Ton AN':'🔇 Stumm';
+}
+function setMM(m){
+  [1,2,3].forEach(i=>{
+    document.getElementById('mtBtn'+i).classList.toggle('active',i===m);
+    document.getElementById('mView'+i).style.display=i===m?'block':'none';
+  });
+  if(m===2)updPGameUI();
+}
+function togPacer(){
+  if(pacerOn)stopPacer();
+  else{
+    pacerOn=true;
+    let b=document.getElementById('mStartBtn');
+    b.textContent='⏹ Routine stoppen';b.className='m-btn m-btn-stop';
+    runPacer();
+  }
+}
+function stopPacer(){
+  pacerOn=false;clearTimeout(pacerTm);
+  if('speechSynthesis' in window)window.speechSynthesis.cancel();
+  let b=document.getElementById('mStartBtn');
+  b.textContent='▶ 3-Zonen-Audio-Routine starten';b.className='m-btn m-btn-start';
+  document.getElementById('mZonePill').textContent='Bereit hinter dem Oche';
+  document.getElementById('mPTitle').textContent='Routine starten';
+  document.getElementById('mPTimer').textContent='–';
+  document.getElementById('mRing').style.transform='scale(1)';
+}
+function runPacer(){
+  if(!pacerOn)return;
+  const icing=document.getElementById('mIcingChk').checked&&Math.random()<0.25;
+  const phases=[
+    {z:'Zone 1 • Hinter dem Oche',t:'Hand lockern & Weg rechnen',s:3,sc:0.95,f:330,v:'Zone 1. Hand ausschütteln und Weg berechnen.'},
+    {z:'Zone 2 • Vor der Linie',t:'2x kurz einatmen (Nase)',s:3,sc:1.18,f:440,v:'Doppelt einatmen.'},
+    {z:'Zone 2 • Puls senken',t:'Lang ausatmen & Schultern senken',s:5,sc:0.84,f:280,v:'Lang ausatmen. Schultern locker lassen.'}
+  ];
+  if(icing)phases.push({z:'⚠️ ICING-STÖRUNG!',t:'Stopp! 1 Schritt zurück & neu sammeln',s:6,sc:0.9,f:210,v:'Störung am Oche! Schritt zurück, nicht werfen.'});
+  phases.push({z:'Zone 3 • Fuß am Oche',t:'Quiet Eye: Punkt fixieren & Wurf!',s:8,sc:1.02,f:587,v:'Zone 3. Punkt fixieren. Eins, Zwei, Drei.'});
+
+  let idx=0;
+  function step(){
+    if(!pacerOn)return;
+    if(idx>=phases.length){
+      if(document.getElementById('mLoopChk').checked){runPacer();return;}
+      document.getElementById('mZonePill').textContent='Aufnahme beendet';
+      document.getElementById('mPTitle').textContent='Bewerte deinen Kopf!';
+      document.getElementById('mPTimer').textContent='✓';
+      pacerOn=false;
+      let b=document.getElementById('mStartBtn');
+      b.textContent='▶ Nächste Aufnahme starten';b.className='m-btn m-btn-start';
+      return;
+    }
+    let p=phases[idx++];
+    document.getElementById('mZonePill').textContent=p.z;
+    document.getElementById('mPTitle').textContent=p.t;
+    document.getElementById('mRing').style.transform='scale('+p.sc+')';
+    beep(p.f,0.3);say(p.v);
+    let left=p.s;
+    document.getElementById('mPTimer').textContent=left+'s';
+    function tick(){
+      if(!pacerOn)return;
+      left--;
+      if(left>0){document.getElementById('mPTimer').textContent=left+'s';pacerTm=setTimeout(tick,1000)}
+      else step();
+    }
+    pacerTm=setTimeout(tick,1000);
+  }
+  step();
+}
+function logMRep(clean){
+  mReps++;
+  if(clean){mClean++;mStr++;beep(660,0.2)}
+  else{mStr=0;beep(220,0.35)}
+  document.getElementById('mCalmV').textContent=Math.round((mClean/mReps)*100)+'%';
+  document.getElementById('mStrV').textContent=mStr;
+  document.getElementById('mRepV').textContent=mReps;
+}
+function setPGame(g){
+  curPGame=g;
+  [1,2,3].forEach(i=>document.getElementById('pgChip'+i).classList.toggle('active',i===g));
+  updPGameUI();
+}
+function updPGameUI(){
+  const hb=document.getElementById('pgHintBox');
+  if(curPGame===1){
+    let sc=ladderScores[ladderIdx],e=DB[sc];
+    document.getElementById('pgTag').textContent=`STUFE ${ladderIdx+1} VON ${ladderScores.length} • ÜBERLEBEN AM DRAHT`;
+    document.getElementById('pgHero').textContent=sc+' Rest';
+    document.getElementById('pgSub').textContent='Ligaspiel-Druck! Du hast 1 Aufnahme (3 Darts) zum Checken oder sauberen Stellen.';
+    hb.style.display='block';
+    document.getElementById('pgWayStd').textContent='Standard: '+e.s;
+    document.getElementById('pgWayAlt').textContent='Bei Single: '+e.a;
+  }else if(curPGame===2){
+    let t=oneDartTargets[Math.floor(Math.random()*oneDartTargets.length)];
+    document.getElementById('pgTag').textContent='MODUS: 1-DART-ENTSCHEIDUNG (DECIDER)';
+    document.getElementById('pgHero').textContent=t;
+    document.getElementById('pgSub').textContent='Nimm NUR EINEN EINZIGEN DART in die Hand! Volle Atem-Routine vor dem Wurf.';
+    hb.style.display='none';
+  }else{
+    let s=shockScenarios[Math.floor(Math.random()*shockScenarios.length)];
+    document.getElementById('pgTag').textContent='MODUS: FRUST-RESET IM MATCH';
+    document.getElementById('pgHero').textContent=s.h;
+    document.getElementById('pgSub').textContent=s.s;
+    hb.style.display='none';
+  }
+}
+function speakCurrentScenario(){
+  let h=document.getElementById('pgHero').textContent,s=document.getElementById('pgSub').textContent;
+  say(h+'. '+s);
+}
+function resPGame(hit){
+  logMRep(hit);
+  if(hit){
+    if(curPGame===1)ladderIdx=Math.min(ladderScores.length-1,ladderIdx+1);
+    updPGameUI();
+    say('Stark gelöst! Nächste Aufgabe: '+document.getElementById('pgHero').textContent);
+  }else{
+    if(curPGame===1)ladderIdx=Math.max(0,ladderIdx-1);
+    runPenalty();
+  }
+}
+function runPenalty(){
+  const pBox=document.getElementById('pgPenalty'),aRow=document.getElementById('pgActionRow');
+  pBox.style.display='block';aRow.style.pointerEvents='none';aRow.style.opacity='0.35';
+  say('Verpasst. Darts ablegen! Fünfzehn Sekunden Atem-Reset.');
+  let s=15;document.getElementById('pgPenTimer').textContent=s+'s';
+  let iv=setInterval(()=>{
+    s--;document.getElementById('pgPenTimer').textContent=s+'s';
+    if(s<=0){
+      clearInterval(iv);pBox.style.display='none';
+      aRow.style.pointerEvents='auto';aRow.style.opacity='1';
+      updPGameUI();say('Reset fertig. Weiter gehts mit '+document.getElementById('pgHero').textContent);
+    }
+  },1000);
+}
 </script>
 </body>
 </html>
